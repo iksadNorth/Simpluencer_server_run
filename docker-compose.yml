@@ -1,0 +1,52 @@
+version: "3.1"
+
+services:
+  was:
+    image: ${WAS_IMAGE_NAME}:${WAS_IMAGE_VERSION}
+    container_name: was
+    restart: always
+    environment:
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID}
+      - GOOGLE_OAUTH_SECRET=${GOOGLE_OAUTH_SECRET}
+      - REDDIT_OAUTH_CLIENT_ID=${REDDIT_OAUTH_CLIENT_ID}
+      - REDDIT_OAUTH_SECRET=${REDDIT_OAUTH_SECRET}
+      - DATASOURCE_USERNAME=${DATASOURCE_USERNAME}
+      - DATASOURCE_PASSWORD=${DATASOURCE_PASSWORD}
+      - MYSQL_DATABASE_NAME=${MYSQL_DATABASE_NAME}
+    ports:
+      - 80:8080
+    networks:
+      - simpluencer-bridge
+    volumes:
+      - ${BUCKET_IMAGE_PATH}:/src/img
+
+  mysql:
+    image: ${MYSQL_DB_NAME}:${MYSQL_DB_IMAGE_VERSION}
+    container_name: mysql_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${DATASOURCE_USERNAME}
+      - MYSQL_PASSWORD=${DATASOURCE_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE_NAME}
+    ports:
+      - 3306:3306
+    networks:
+      - simpluencer-bridge
+    volumes:
+      - ${DIR_MOUNTED_MYSQL}:/var/lib/mysql
+
+  redis:
+    image: ${REDIS_DB_IMAGE_NAME}:${REDIS_DB_IMAGE_VERSION}
+    container_name: redis_db
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - simpluencer-bridge
+
+networks:
+  simpluencer-bridge:
+    driver: bridge
